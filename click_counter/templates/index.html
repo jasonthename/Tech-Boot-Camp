@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Click Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      color: #111827;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .counter {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #2563eb;
+    }
+
+    .btn {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin: 0 1rem;
+    }
+
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1rem;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click Tracker</h1>
+  <div class="counter">You’ve clicked <strong>{{ clicks }}</strong> times.</div>
+  <div class="actions">
+    <form action="/click" method="get">
+      <button class="btn" type="submit">Click Me</button>
+    </form>
+    <form action="/reset" method="get">
+      <button class="btn" type="submit">Reset</button>
+    </form>
+  </div>
+  <footer>Simple Flask App &copy; 2025</footer>
+</body>
+</html>
