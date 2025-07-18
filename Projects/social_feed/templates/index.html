@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Twitter Feed</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .main-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Left Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h6 {
+            padding: 0 20px;
+            color: #bdc3c7;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .sidebar-item:hover {
+            background-color: #34495e;
+            color: white;
+        }
+        
+        .sidebar-item.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .sidebar-item i {
+            width: 20px;
+            margin-right: 12px;
+        }
+        
+        .sidebar-item .badge {
+            margin-left: auto;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            display: flex;
+        }
+        
+        .feed-container {
+            flex: 1;
+            max-width: 600px;
+            padding: 20px;
+        }
+        
+        .feed-header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #657786;
+        }
+        
+        /* Post Creation Box */
+        .post-creation {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .post-creation-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 12px;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .post-creation input, .post-creation textarea {
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .post-creation textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .post-options {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .post-options i {
+            color: #657786;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .post-options i:hover {
+            color: #3498db;
+        }
+        
+        .post-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .post-btn:hover {
+            background: #2980b9;
+        }
+        
+        /* Posts */
+        .post {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-right: 12px;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .post-info {
+            flex: 1;
+        }
+        
+        .post-title {
+            font-weight: 600;
+            color: #14171a;
+            margin: 0 0 5px 0;
+        }
+        
+        .post-meta {
+            color: #657786;
+            font-size: 0.9rem;
+        }
+        
+        .post-content {
+            margin: 15px 0;
+            line-height: 1.5;
+            color: #14171a;
+        }
+        
+        .post-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e8ed;
+        }
+        
+        .post-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .post-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #657786;
+            font-size: 0.9rem;
+        }
+        
+        .post-interactions {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .interaction-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #657786;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            transition: all 0.2s;
+        }
+        
+        .interaction-btn:hover {
+            background-color: #f8f9fa;
+            color: #3498db;
+        }
+        
+        .interaction-btn.liked {
+            color: #e74c3c;
+        }
+        
+        /* Comments */
+        .comments-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e8ed;
+        }
+        
+        .comment-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .comment-form input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e1e8ed;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .comment-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .comment {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-right: 8px;
+            border: 1px solid #e1e8ed;
+        }
+        
+        .comment-content {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 15px;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: #14171a;
+            font-size: 0.9rem;
+        }
+        
+        .comment-text {
+            color: #14171a;
+            font-size: 0.9rem;
+        }
+        
+        /* Right Sidebar */
+        .right-sidebar {
+            width: 300px;
+            padding: 20px;
+        }
+        
+        .widget {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .widget h5 {
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .widget-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .widget-item:last-child {
+            border-bottom: none;
+        }
+        
+        .widget-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 10px;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .widget-info {
+            flex: 1;
+        }
+        
+        .widget-name {
+            font-weight: 600;
+            color: #14171a;
+            margin: 0;
+        }
+        
+        .widget-meta {
+            color: #657786;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        
+        @media (max-width: 1200px) {
+            .right-sidebar {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .feed-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-dove"></i> Maise</h3>
+            </div>
+            
+            <div class="sidebar-section">
+                <h6>Main Menu</h6>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-envelope"></i>
+                    Messages
+                    <span class="badge bg-primary">2</span>
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-inbox"></i>
+                    Mail
+                    <span class="badge bg-primary">1</span>
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    People
+                </a>
+                <a href="#" class="sidebar-item active">
+                    <i class="fas fa-stream"></i>
+                    Feed
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+            </div>
+            
+            <div class="sidebar-section">
+                <h6>Explore</h6>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-file-alt"></i>
+                    Pages
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-calendar"></i>
+                    Events
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-briefcase"></i>
+                    Jobs
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    Groups
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-bookmark"></i>
+                    Saved
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="feed-container">
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Type to search...">
+                </div>
+                
+                <!-- Post Creation -->
+                <div class="post-creation">
+                    <div class="post-creation-header">
+                        <div class="user-avatar" id="current-user-avatar">😊</div>
+                        <span style="color: #657786;">What's new?</span>
+                    </div>
+                    
+                    <form method="POST" action="/post">
+                        <input type="text" name="name" placeholder="Your name" required>
+                        <input type="text" name="title" placeholder="Post title" required>
+                        <textarea name="body" placeholder="What's happening?" required></textarea>
+                        
+                        <div class="post-actions">
+                            <div class="post-options">
+                                <i class="fas fa-image"></i>
+                                <i class="fas fa-video"></i>
+                                <i class="fas fa-link"></i>
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <button type="submit" class="post-btn">Tweet</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Posts Feed -->
+                {% for post in posts %}
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-avatar" data-user="{{ post.name }}"></div>
+                        <div class="post-info">
+                            <div class="post-title">{{ post.name }} <span style="color: #657786;">is at</span> {{ post.title }}</div>
+                            <div class="post-meta">Thursday, Jun 31, 5:50 PM</div>
+                        </div>
+                        <div style="margin-left: auto;">
+                            <i class="fas fa-ellipsis-h" style="color: #657786;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="post-content">
+                        {{ post.body }}
+                    </div>
+                    
+                    <div class="post-actions-bar">
+                        <div class="post-stats">
+                            <div class="post-stat like-count-{{ post.id }}">
+                                <i class="fas fa-heart"></i>
+                                <span>{{ post.likes }} Likes</span>
+                            </div>
+                            <div class="post-stat">
+                                <i class="fas fa-comment"></i>
+                                <span>{{ post.comments|length }} Comments</span>
+                            </div>
+                            <div class="post-stat">
+                                <i class="fas fa-share"></i>
+                                <span>0 Shares</span>
+                            </div>
+                        </div>
+                        
+                        <div class="post-interactions">
+                            <a href="/like/{{ post.id }}" class="interaction-btn like-btn" data-post-id="{{ post.id }}" onclick="handleLike(event, {{ post.id }})">
+                                <i class="far fa-heart"></i>
+                                Like
+                            </a>
+                        </div>
+                    </div>
+                    
+                    {% if post.comments or true %}
+                    <div class="comments-section">
+                        <form method="POST" action="/comment/{{ post.id }}">
+                            <div class="comment-form">
+                                <input type="text" name="commenter" placeholder="Your name" required>
+                                <input type="text" name="comment" placeholder="Write a comment..." required>
+                                <button type="submit" class="comment-btn">Reply</button>
+                            </div>
+                        </form>
+                        
+                        {% for comment in post.comments %}
+                        <div class="comment">
+                            <div class="comment-avatar" data-user="{{ comment.name }}"></div>
+                            <div class="comment-content">
+                                <div class="comment-author">{{ comment.name }}</div>
+                                <div class="comment-text">{{ comment.text }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Right Sidebar -->
+            <div class="right-sidebar">
+                <div class="widget">
+                    <h5>Groups</h5>
+                    <div class="widget-item">
+                        <div class="widget-avatar" data-user="Nike">🏃</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Nike</div>
+                            <div class="widget-meta">619K Subscribers</div>
+                        </div>
+                    </div>
+                    <div class="widget-item">
+                        <div class="widget-avatar" data-user="Netflix">🎬</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Netflix</div>
+                            <div class="widget-meta">2.2M Subscribers</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="widget">
+                    <h5>Contacts</h5>
+                    <div class="widget-item">
+                        <div class="widget-avatar" data-user="Helena Thornton">👩</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Helena Thornton</div>
+                            <div class="widget-meta">Online</div>
+                        </div>
+                    </div>
+                    <div class="widget-item">
+                        <div class="widget-avatar" data-user="Adam Mendoza">👨</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Adam Mendoza</div>
+                            <div class="widget-meta">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="widget-item">
+                        <div class="widget-avatar" data-user="Philip Kelly">🧑</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Philip Kelly</div>
+                            <div class="widget-meta">Active</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="widget">
+                    <h5>Messages</h5>
+                    <div class="widget-item">
+                        <div class="widget-avatar" data-user="Adam Eve Anna Peter">👥</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Adam, Eve, Anna, Peter</div>
+                            <div class="widget-meta">Today at 3:30 PM</div>
+                        </div>
+                    </div>
+                    <div class="widget-item">
+                        <div class="widget-avatar" data-user="Funny Stuff">😄</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Funny Stuff</div>
+                            <div class="widget-meta">Thursday, Jun 31, 5:50 PM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Gender-neutral friendly emoji avatars
+        const avatarEmojis = [
+            '😊', '😄', '😎', '🤓', '😇', '🙂', '🤗', '😋', '🤩', '🥳',
+            '🧑', '👤', '🤔', '😌', '🙃', '😉', '🤖', '🎭', '🎨', '🌟',
+            '🔥', '💫', '⭐', '🌈', '🎪', '🎵', '🎯', '🚀', '🌸', '🌺',
+            '🦋', '🌻', '🍀', '🌿', '🐝', '🐨', '🐸', '🦊', '🐺', '🦁'
+        ];
+        
+        // Simple hash function to generate consistent avatars
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
+        
+        // Generate avatar based on username
+        function generateAvatar(username) {
+            const hash = hashCode(username.toLowerCase());
+            return avatarEmojis[hash % avatarEmojis.length];
+        }
+        
+        // Initialize avatars on page load
+        function initializeAvatars() {
+            // Set avatars for all elements with data-user attribute
+            const avatarElements = document.querySelectorAll('[data-user]');
+            avatarElements.forEach(element => {
+                const username = element.getAttribute('data-user');
+                element.textContent = generateAvatar(username);
+            });
+        }
+        
+        // Update current user avatar based on name input
+        function updateCurrentUserAvatar() {
+            const nameInput = document.querySelector('input[name="name"]');
+            const currentUserAvatar = document.getElementById('current-user-avatar');
+            
+            if (nameInput && currentUserAvatar) {
+                nameInput.addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        currentUserAvatar.textContent = generateAvatar(this.value.trim());
+                    } else {
+                        currentUserAvatar.textContent = '😊';
+                    }
+                });
+            }
+        }
+        
+        // Initialize when DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAvatars();
+            updateCurrentUserAvatar();
+        });
+        
+        function handleLike(event, postId) {
+            event.preventDefault(); // Prevent default link behavior
+            
+            // Send AJAX request to like the post
+            fetch(`/like/${postId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Update the like count in the UI
+                    const likeCountElement = document.querySelector(`.like-count-${postId} span`);
+                    if (likeCountElement) {
+                        const currentCount = parseInt(likeCountElement.textContent);
+                        likeCountElement.textContent = `${currentCount + 1} Likes`;
+                    }
+                    
+                    // Add visual feedback
+                    const likeBtn = document.querySelector(`[data-post-id="${postId}"]`);
+                    if (likeBtn) {
+                        likeBtn.classList.add('liked');
+                        const heartIcon = likeBtn.querySelector('i');
+                        heartIcon.classList.remove('far');
+                        heartIcon.classList.add('fas');
+                        
+                        // Add a brief animation
+                        likeBtn.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            likeBtn.style.transform = 'scale(1)';
+                        }, 150);
+                    }
+                } else {
+                    console.error('Failed to like post');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

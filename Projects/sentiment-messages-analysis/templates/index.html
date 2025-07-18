@@ -1,0 +1,155 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .positive { color: #22c55e !important; }
+        .negative { color: #ef4444 !important; }
+        .neutral { color: #3b82f6 !important; }
+        .emphasis { color: #eab308 !important; }
+        .question { color: #d946ef !important; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Text Analyzer</h1>
+        
+        <!-- Upload Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <form id="uploadForm" class="flex flex-col items-center">
+                <label class="w-64 flex flex-col items-center px-4 py-6 bg-white rounded-lg shadow-lg tracking-wide border border-blue-500 cursor-pointer hover:bg-blue-500 hover:text-white">
+                    <svg class="w-8 h-8" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
+                    </svg>
+                    <span class="mt-2 text-sm">Upload JSON file</span>
+                    <input type="file" class="hidden" id="fileInput" accept=".json">
+                </label>
+                <button type="submit" class="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                    Analyze
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden">
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Message Statistics</h2>
+                    <div class="space-y-2">
+                        <p>Average message length: <span id="avgLength"></span> words</p>
+                        <p>Number of questions: <span id="questionCount"></span></p>
+                        <p>Number of emphasized words: <span id="emphasisCount"></span></p>
+                        <p>Number of unique senders: <span id="uniqueSenders"></span></p>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Sentiment Analysis</h2>
+                    <div class="space-y-2">
+                        <p class="text-green-500">Positive: <span id="positiveSentiment"></span>%</p>
+                        <p class="text-red-500">Negative: <span id="negativeSentiment"></span>%</p>
+                        <p class="text-blue-500">Neutral: <span id="neutralSentiment"></span>%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Words -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Top Words</h2>
+                <div id="topWords" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+            </div>
+
+            <!-- Messages -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Analyzed Messages</h2>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600">Color Legend:</p>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm mt-2">
+                        <span class="positive">● Positive words</span>
+                        <span class="negative">● Negative words</span>
+                        <span class="neutral">● Neutral words</span>
+                        <span class="emphasis">● Emphasized words</span>
+                        <span class="question">● Questions</span>
+                    </div>
+                </div>
+                <div id="messages" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    alert(data.error || 'An error occurred');
+                }
+            } catch (error) {
+                alert('An error occurred while analyzing the file');
+            }
+        });
+
+        function displayResults(data) {
+            document.getElementById('results').classList.remove('hidden');
+            
+            // Update statistics
+            document.getElementById('avgLength').textContent = data.patterns.avg_message_length;
+            document.getElementById('questionCount').textContent = data.patterns.question_count;
+            document.getElementById('emphasisCount').textContent = data.patterns.emphasis_count;
+            document.getElementById('uniqueSenders').textContent = data.patterns.unique_senders;
+            
+            // Update sentiment
+            document.getElementById('positiveSentiment').textContent = (data.patterns.sentiment.positive * 100).toFixed(1);
+            document.getElementById('negativeSentiment').textContent = (data.patterns.sentiment.negative * 100).toFixed(1);
+            document.getElementById('neutralSentiment').textContent = (data.patterns.sentiment.neutral * 100).toFixed(1);
+            
+            // Update top words
+            const topWordsDiv = document.getElementById('topWords');
+            topWordsDiv.innerHTML = data.patterns.top_words
+                .map(({word, count}) => `
+                    <div class="bg-gray-100 rounded p-2 text-center">
+                        <div class="font-semibold">${word}</div>
+                        <div class="text-sm text-gray-600">${count}</div>
+                    </div>
+                `)
+                .join('');
+            
+            // Update messages
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = data.messages
+                .map(msg => `
+                    <div class="border-b border-gray-200 pb-4">
+                        <div class="font-semibold mb-2">${msg.sender}</div>
+                        <div>${msg.text}</div>
+                    </div>
+                `)
+                .join('');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voice to Text Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-600 to-pink-500 text-white text-center py-6">
+      <h1 class="text-3xl font-bold">Voice to Text</h1>
+      <p class="text-white/90 mt-1">Upload your audio file and get transcribed text instantly</p>
+    </div>
+
+    <!-- Form Area -->
+    <div class="p-6">
+      <div class="file-upload border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-4">
+        <label for="audio-upload" class="cursor-pointer block">
+          <i class="fas fa-microphone-alt text-indigo-600 text-2xl mb-2"></i>
+          <p class="text-gray-600 mb-2">Click or drag your audio file here</p>
+          <span class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Select File</span>
+          <input type="file" id="audio-upload" accept="audio/*" class="hidden" />
+        </label>
+        <p class="text-xs text-gray-400 mt-3">Supports: MP3, WAV, OGG (Max 50MB)</p>
+      </div>
+
+      <!-- File info -->
+      <div id="file-info" class="hidden mb-4">
+        <p><strong>File:</strong> <span id="file-name" class="text-sm text-gray-700"></span></p>
+        <p><strong>Size:</strong> <span id="file-size" class="text-sm text-gray-500"></span></p>
+      </div>
+
+      <!-- Convert Button -->
+      <button id="submit-btn" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center transition">
+        <span id="submit-text">Convert to Text</span>
+        <span id="submit-loading" class="hidden ml-2"><i class="fas fa-spinner fa-spin"></i></span>
+      </button>
+
+      <!-- Result -->
+      <div id="result-section" class="hidden mt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Transcription Result:</h3>
+        <div class="bg-gray-100 p-4 rounded border border-gray-300">
+          <p id="transcription-result" class="text-gray-700">...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('audio-upload');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const submitBtn = document.getElementById('submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const submitLoading = document.getElementById('submit-loading');
+    const resultSection = document.getElementById('result-section');
+    const transcriptionResult = document.getElementById('transcription-result');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        fileInfo.classList.remove('hidden');
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+      }
+    });
+
+    submitBtn.addEventListener('click', () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please select an audio file.');
+        return;
+      }
+
+      // Show loading
+      submitText.textContent = 'Processing...';
+      submitLoading.classList.remove('hidden');
+      submitBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('audio', file);
+
+      fetch('http://localhost:5000/transcribe', {
+        method: 'POST',
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+          submitText.textContent = 'Convert to Text';
+          submitLoading.classList.add('hidden');
+          submitBtn.disabled = false;
+          resultSection.classList.remove('hidden');
+
+          if (data.text) {
+            transcriptionResult.textContent = data.text;
+          } else {
+            transcriptionResult.textContent = 'No transcription returned.';
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('An error occurred during transcription.');
+          submitText.textContent = 'Convert to Text';
+          submitLoading.classList.add('hidden');
+          submitBtn.disabled = false;
+        });
+    });
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' bytes';
+      else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      else return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+  </script>
+</body>
+</html>

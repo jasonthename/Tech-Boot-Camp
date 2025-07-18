@@ -1,1 +1,2 @@
-/click_counter/flask_session
+**/flask_session
+**/__pycache__
